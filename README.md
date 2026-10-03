@@ -6,6 +6,27 @@ Open source under **GPL-2.0-or-later** (`COPYING`, `NOTICE`). No Sony data is in
 Full guide: [docs/INSTALL.md](docs/INSTALL.md) · Czech: [docs/NAVOD.cs.md](docs/NAVOD.cs.md) ·
 Article: <https://svec-elektro.cz/projekty/psp-xmb-wave/>
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Blue Wire wave](docs/screenshots/vlna-blue-wire.jpg) | ![Crazy Rainbow wave](docs/screenshots/vlna-crazy-rainbow.jpg) |
+| ![Alice wave](docs/screenshots/vlna-alice.jpg) | ![Original Sony wave](docs/screenshots/vlna-sony.jpg) |
+| ![XMB July theme colour](docs/screenshots/tema-cervenec.jpg) | ![PS2 (PSX) wave style](docs/screenshots/vlna-ps2.jpg) |
+
+Renderer before/after — the wave is now drawn from the real RCO data, not heuristics:
+
+| Before (heuristic) | After (B-spline + fcurves + sphere map) |
+|---|---|
+| ![Old heuristic renderer](docs/screenshots/pred.jpg) | ![New renderer](docs/screenshots/po.jpg) |
+| ![Detail before](docs/screenshots/detail-pred.jpg) | ![Detail after](docs/screenshots/detail-po.jpg) |
+
+Wireframe and the reflection map stored inside the GMO:
+
+| | |
+|---|---|
+| ![Wireframe](docs/screenshots/wire.jpg) | ![Reflection map](docs/screenshots/reflexni-mapa.png) |
+
 ## Features
 
 - Renders PSP XMB waves from RCO files (GMO B-spline surface + fcurve animation + sphere map)
