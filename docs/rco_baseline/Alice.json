@@ -1,0 +1,52 @@
+{
+  "wave": "Alice",
+  "rco_size": 146440,
+  "rco_version": 113,
+  "gmo_md5": "0986be254c5bdf25cbdb982df229c4cc",
+  "gmo_size": 144512,
+  "model_object": {
+    "name": "default_theme_model",
+    "scaleWidth": 8.5,
+    "scaleHeight": 8.5,
+    "scaleDepth": 8.5,
+    "model": "mdl_bg"
+  },
+  "image_count": 0,
+  "model_count": 1,
+  "fcurves_in_rco": [
+    {
+      "name": "fcurve-0",
+      "file_offset": 26288,
+      "blob_offset": 26300,
+      "num_keys": 1,
+      "channel": 16,
+      "duration": 1501
+    },
+    {
+      "name": "fcurve-1",
+      "file_offset": 128400,
+      "blob_offset": 128412,
+      "num_keys": 1,
+      "channel": 2,
+      "duration": 1501
+    }
+  ],
+  "fcurves_in_gmo": [
+    {
+      "name": "fcurve-0",
+      "file_offset": 24360,
+      "blob_offset": 24372,
+      "num_keys": 1,
+      "channel": 16,
+      "duration": 1501
+    },
+    {
+      "name": "fcurve-1",
+      "file_offset": 126472,
+      "blob_offset": 126484,
+      "num_keys": 1,
+      "channel": 2,
+      "duration": 1501
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+[project]
+name = "vlnky-proto-preview"
+version = "0.1.0"
+description = "Vlnky RCO wave parser and preview (PySide6)"
+requires-python = ">=3.10"
+dependencies = ["PySide6>=6.5", "numpy>=1.24"]
+
+[project.scripts]
+vlnky-proto-preview = "tools.run_preview:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["xmb_wave*"]

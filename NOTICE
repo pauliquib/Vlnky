@@ -1,0 +1,37 @@
+Vlnky — KDE Plasma 6 wallpaper
+Copyright (C) 2026 Pavel Švec <pavel@svec-elektro.cz>
+https://svec-elektro.cz/projekty/psp-xmb-wave/
+
+This program is free software; you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version. See COPYING.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+What is NOT included
+--------------------
+No Sony firmware, no system_plugin_bg.rco files and no data extracted from them (meshes,
+textures, animations) are distributed with this program. The wallpaper renders files that the
+user supplies. scripts/import-original-wave.sh extracts the original wave from an official PSP
+update file that the user obtains themselves.
+
+"PlayStation", "PSP", "PS2", "PSX" and "XMB" / "XrossMediaBar" are trademarks of Sony
+Interactive Entertainment Inc. This project is not affiliated with or endorsed by Sony.
+
+
+Third-party material
+--------------------
+third_party/rhi/*.h
+    Qt RHI headers, Copyright (C) 2023 The Qt Company Ltd.
+    LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only.
+    Used only when the system Qt does not provide rhi/qrhi.h (see CMakeLists.txt).
+
+XMB month colour table and PS2 (PSX DESR) wave parameters (amplitudes, speeds, wavelength,
+colour offsets, time-of-day brightness hours) follow the values published in OSD-XMB by
+HiroTex, https://github.com/HiroTex/OSD-XMB (GPL-3.0). No OSD-XMB source code is included;
+the shaders in shaders/ are an independent implementation.
+
+pspdecrypt (John-K and contributors, GPL-3.0, https://github.com/John-K/pspdecrypt) is NOT
+bundled; scripts/import-original-wave.sh downloads and builds it on the user's machine.

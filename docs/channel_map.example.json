@@ -1,0 +1,9 @@
+{
+  "default": {
+    "y_offset": { "channel": 0, "scale": 2.0 },
+    "y_wave": { "channel": 2, "scale": 2.0 },
+    "z_offset": { "channel": 2, "scale": 2.0 },
+    "wave_phase": { "channel": 16, "scale": 0.01 },
+    "wave_amplitude": { "channel": 2, "scale": 0.4, "abs": true }
+  }
+}

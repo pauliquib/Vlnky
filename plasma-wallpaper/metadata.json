@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/Wallpaper",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "pavel@svec-elektro.cz",
+                "Name": "Pavel Švec"
+            }
+        ],
+        "Category": "",
+        "Description": "Animated wave wallpaper rendered from PSP-style system_plugin_bg.rco files, with XMB month colours, a PS2 (PSX) style, a Svec Studio wave and high-resolution post-processing",
+        "Icon": "preferences-desktop-wallpaper",
+        "Id": "org.psvec.vlnky",
+        "License": "GPL-2.0-or-later",
+        "Name": "Vlnky",
+        "Version": "1.5.0",
+        "Website": "https://svec-elektro.cz/projekty/psp-xmb-wave/"
+    },
+    "X-KDE-ParentApp": "org.kde.plasmashell"
+}

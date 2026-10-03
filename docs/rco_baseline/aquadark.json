@@ -1,0 +1,52 @@
+{
+  "wave": "aquadark",
+  "rco_size": 31176,
+  "rco_version": 113,
+  "gmo_md5": "310efe3a4b823f302fca9459a923b35d",
+  "gmo_size": 29248,
+  "model_object": {
+    "name": "default_theme_model",
+    "scaleWidth": 8.5,
+    "scaleHeight": 8.5,
+    "scaleDepth": 8.5,
+    "model": "mdl_bg"
+  },
+  "image_count": 0,
+  "model_count": 1,
+  "fcurves_in_rco": [
+    {
+      "name": "fcurve-0",
+      "file_offset": 26352,
+      "blob_offset": 26364,
+      "num_keys": 1,
+      "channel": 16,
+      "duration": 63
+    },
+    {
+      "name": "fcurve-1",
+      "file_offset": 30680,
+      "blob_offset": 30692,
+      "num_keys": 1,
+      "channel": 2,
+      "duration": 39
+    }
+  ],
+  "fcurves_in_gmo": [
+    {
+      "name": "fcurve-0",
+      "file_offset": 24424,
+      "blob_offset": 24436,
+      "num_keys": 1,
+      "channel": 16,
+      "duration": 63
+    },
+    {
+      "name": "fcurve-1",
+      "file_offset": 28752,
+      "blob_offset": 28764,
+      "num_keys": 1,
+      "channel": 2,
+      "duration": 39
+    }
+  ]
+}

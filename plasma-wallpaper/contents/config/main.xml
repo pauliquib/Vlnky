@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="CollectionPath" type="String">
+      <label>Wave collection folder</label>
+      <default></default>
+    </entry>
+    <entry name="WaveName" type="String">
+      <label>Selected wave</label>
+      <default></default>
+    </entry>
+    <entry name="RcoPath" type="String">
+      <default></default>
+    </entry>
+    <entry name="TexturePath" type="String">
+      <default></default>
+    </entry>
+    <entry name="TessLevel" type="Int">
+      <default>3</default>
+      <min>1</min>
+      <max>4</max>
+    </entry>
+    <entry name="WaveStyle" type="Int">
+      <label>0 = PSP wave from RCO, 1 = PS2 (PSX DESR) wave, 2 = Svec Studio wave</label>
+      <default>0</default>
+    </entry>
+    <entry name="WaveColorMode" type="Int">
+      <label>0 = automatic (theme/background/template colour), 1 = custom wave colour</label>
+      <default>0</default>
+    </entry>
+    <entry name="WaveColor" type="Color">
+      <label>User-chosen wave colour, used when WaveColorMode is 1</label>
+      <default>#26c6da</default>
+    </entry>
+    <entry name="ColorTheme" type="Int">
+      <label>0 = use background settings, 1 = XMB colour of the current month, 2..13 = January..December, 14 = custom colour</label>
+      <default>0</default>
+    </entry>
+    <entry name="CustomThemeColor" type="Color">
+      <label>User-chosen XMB colour, used when ColorTheme is 14</label>
+      <default>#3fa9f5</default>
+    </entry>
+    <entry name="TimeOfDayBrightness" type="Bool">
+      <label>Dim the XMB theme colour at night like the console</label>
+      <default>true</default>
+    </entry>
+    <entry name="RenderScale" type="Double">
+      <label>Supersampling factor of the wave layer</label>
+      <default>1.0</default>
+    </entry>
+    <entry name="MsaaSamples" type="Int">
+      <default>4</default>
+    </entry>
+    <entry name="Bloom" type="Double">
+      <label>Glow strength</label>
+      <default>0.3</default>
+    </entry>
+    <entry name="BicubicTexture" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="Dither" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="Vignette" type="Double">
+      <default>0.0</default>
+    </entry>
+    <entry name="MaxFps" type="Int">
+      <default>30</default>
+    </entry>
+    <entry name="PauseOnBattery" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="BatterySaver" type="Bool">
+      <default>false</default>
+    </entry>
+    <entry name="BackgroundMode" type="Int">
+      <default>1</default>
+    </entry>
+    <entry name="BackgroundColor" type="Color">
+      <default>#080c1c</default>
+    </entry>
+    <entry name="GradientStart" type="Color">
+      <default>#080c1c</default>
+    </entry>
+    <entry name="GradientEnd" type="Color">
+      <default>#14285a</default>
+    </entry>
+    <entry name="GradientAngle" type="Double">
+      <default>90</default>
+    </entry>
+    <entry name="BackgroundImage" type="Url">
+      <default></default>
+    </entry>
+    <entry name="WaveOpacity" type="Double">
+      <default>0.92</default>
+    </entry>
+    <entry name="WaveHeightRatio" type="Double">
+      <default>0.58</default>
+      <min>0.3</min>
+      <max>0.8</max>
+    </entry>
+    <entry name="WaveSpeed" type="Double">
+      <label>Wave animation speed multiplier (1.0 = original)</label>
+      <default>1.0</default>
+      <min>0.1</min>
+      <max>4.0</max>
+    </entry>
+    <entry name="AdaptiveQuality" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="DebugOverlay" type="Bool">
+      <label>Show diagnostic overlay</label>
+      <default>false</default>
+    </entry>
+    <entry name="WireframeMode" type="Bool">
+      <label>Wireframe debug render</label>
+      <default>false</default>
+    </entry>
+  </group>
+</kcfg>
