@@ -6,6 +6,8 @@ Open source under **GPL-2.0-or-later** (`COPYING`, `NOTICE`). No Sony data is in
 Full guide: [docs/INSTALL.md](docs/INSTALL.md) · Czech: [docs/NAVOD.cs.md](docs/NAVOD.cs.md) ·
 Article: <https://svec-elektro.cz/projekty/psp-xmb-wave/>
 
+*Public snapshot — development happens in a private repository; commit history is squashed.*
+
 ## Screenshots
 
 | | |
