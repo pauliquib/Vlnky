@@ -46,11 +46,11 @@ cp -a %{__cmake_builddir}/plasma-wallpaper/package/* %{buildroot}%{_datadir}/pla
 %{_datadir}/plasma/wallpapers/org.psvec.vlnky
 
 %changelog
-* Thu Oct  2 2026 Pavel Švec <pavel@svec-elektro.cz> - 1.5.0-1
+* Thu Oct  2 2026 pauliquib - 1.5.0-1
 - Svec Studio wave style (Sencurio landing hero waves), custom wave colour
 
-* Tue Sep 29 2026 Pavel Švec <pavel@svec-elektro.cz> - 1.4.1-1
+* Tue Sep 29 2026 pauliquib - 1.4.1-1
 - Custom XMB colour option, fixed empty preview in settings
 
-* Mon Sep 28 2026 Pavel Švec <pavel@svec-elektro.cz> - 1.4.0-1
+* Mon Sep 28 2026 pauliquib - 1.4.0-1
 - Post-processing pipeline, XMB colours, PS2 style, original wave import
