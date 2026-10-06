@@ -9,6 +9,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QTextStream>
 
 namespace {
 
@@ -197,4 +200,111 @@ void WaveScanner::refresh()
         else
             m_selectedWave.clear();
     }
+}
+
+// --- GPU preference ------------------------------------------------------------------------------
+//
+// plasmashell is a single QRhi scene graph; a QQuickRhiItem cannot choose its
+// physical device. The only workable per-user switch is an environment override
+// applied to the plasmashell service itself: VK_ICD_FILENAMES picks the Vulkan
+// ICD (Qt RHI Vulkan backend) and __EGL_VENDOR_LIBRARY_FILENAMES picks the GLVND
+// vendor (Qt RHI OpenGL backend). Written as a systemd user drop-in so it
+// survives restarts; "automatic" deletes it.
+
+namespace {
+
+QString pickFile(const QString &dirPath, const QStringList &keywords)
+{
+    const QDir dir(dirPath);
+    for (const QString &kw : keywords) {
+        const QStringList hits = dir.entryList({kw + QStringLiteral("*.json")}, QDir::Files);
+        for (const QString &h : hits)
+            if (h.contains(QStringLiteral("x86_64")))
+                return dir.filePath(h);
+        if (!hits.isEmpty())
+            return dir.filePath(hits.first());
+    }
+    return QString();
+}
+
+QString gpuDropInPath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+        + QStringLiteral("/.config/systemd/user/plasma-plasmashell.service.d/50-vlnky-gpu.conf");
+}
+
+} // namespace
+
+QStringList WaveScanner::detectedGpus()
+{
+    QStringList out;
+    const QDir dir(QStringLiteral("/sys/class/drm"));
+    const QStringList nodes = dir.entryList({QStringLiteral("renderD*")}, QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    for (const QString &node : nodes) {
+        const QString dev = dir.filePath(node + QStringLiteral("/device"));
+        const QString driver = QFileInfo(dev + QStringLiteral("/driver")).symLinkTarget()
+            .section(QLatin1Char('/'), -1);
+        const QString pci = QFileInfo(dev).symLinkTarget().section(QLatin1Char('/'), -1);
+        out.append(QStringLiteral("%1 — %2 (%3)").arg(node, driver, pci));
+    }
+    return out;
+}
+
+QString WaveScanner::applyGpuPreference(int pref)
+{
+    const QString path = gpuDropInPath();
+    QDir().mkpath(QFileInfo(path).absolutePath());
+
+    if (pref == 0) {
+        QFile::remove(path);
+        QProcess::startDetached(QStringLiteral("systemctl"), {QStringLiteral("--user"), QStringLiteral("daemon-reload")});
+        return QStringLiteral("automatic");
+    }
+
+    QString vkIcd;
+    QString eglJson;
+    if (pref == 1) { // integrated
+        vkIcd = pickFile(QStringLiteral("/usr/share/vulkan/icd.d"),
+                         {QStringLiteral("intel_icd"), QStringLiteral("intel_hasvk_icd"),
+                          QStringLiteral("radeon_icd"), QStringLiteral("lvp_icd")});
+        eglJson = pickFile(QStringLiteral("/usr/share/glvnd/egl_vendor.d"),
+                           {QStringLiteral("*mesa")});
+        if (eglJson.isEmpty())
+            eglJson = QStringLiteral("/usr/share/glvnd/egl_vendor.d/50_mesa.json");
+    } else { // dedicated
+        vkIcd = pickFile(QStringLiteral("/usr/share/vulkan/icd.d"),
+                         {QStringLiteral("nvidia_icd"), QStringLiteral("radeon_icd"),
+                          QStringLiteral("nouveau_icd")});
+        eglJson = pickFile(QStringLiteral("/usr/share/glvnd/egl_vendor.d"),
+                           {QStringLiteral("*nvidia")});
+        if (eglJson.isEmpty())
+            eglJson = QStringLiteral("/usr/share/glvnd/egl_vendor.d/10_nvidia.json");
+    }
+
+    QStringList env;
+    if (!vkIcd.isEmpty())
+        env << QStringLiteral("VK_ICD_FILENAMES=") + vkIcd;
+    if (!eglJson.isEmpty())
+        env << QStringLiteral("__EGL_VENDOR_LIBRARY_FILENAMES=") + eglJson;
+    if (pref == 2)
+        env << QStringLiteral("DRI_PRIME=1");
+
+    QFile f(path);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return QString();
+    QTextStream ts(&f);
+    ts << "[Service]\n";
+    for (const QString &e : env)
+        ts << "Environment=\"" << e << "\"\n";
+    f.close();
+
+    QProcess::startDetached(QStringLiteral("systemctl"), {QStringLiteral("--user"), QStringLiteral("daemon-reload")});
+    return env.join(QLatin1Char(' '));
+}
+
+void WaveScanner::restartPlasmashell()
+{
+    QProcess::startDetached(QStringLiteral("systemctl"),
+                            {QStringLiteral("--user"), QStringLiteral("restart"),
+                             QStringLiteral("plasma-plasmashell.service")});
 }

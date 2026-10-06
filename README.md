@@ -145,7 +145,8 @@ vlnky/
   analytically per pixel (after [OSD-XMB](https://github.com/HiroTex/OSD-XMB), GPL-3).
 - **Wave style → Svec Studio wave**: the four layered "hero waves" from the Sencurio landing
   page as used on the svec-studio desktop — filled silhouettes anchored to the bottom edge,
-  scrolling sideways and bobbing, tinted by the wave colour over any background.
+  scrolling sideways and bobbing, tinted by the wave colour over any background. The *Height*
+  slider scales the wave band (30–250 % of the landing-page default).
 - **Wave colour**: *Automatic* follows the theme / style default; *Custom colour* tints the
   wave of any style (PSP, PS2, Svec Studio) with a freely chosen colour.
 

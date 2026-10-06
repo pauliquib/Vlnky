@@ -3,6 +3,7 @@
 
 import QtQuick
 import org.kde.plasma.plasmoid
+import org.kde.taskmanager as TaskManager
 import "org/psvec/vlnky"
 
 WallpaperItem {
@@ -50,6 +51,47 @@ WallpaperItem {
         running: true
         repeat: true
         onTriggered: root.now = new Date()
+    }
+
+    // Power modes: 0 = normal, 1 = low power (cheapest combination of the existing
+    // quality knobs), 2 = static frame (paused forever; renders once per change).
+    readonly property int powerMode: Number(cfg("PowerMode", 0))
+    readonly property bool lowPower: powerMode === 1
+    readonly property bool pauseWhenCovered: cfg("PauseWhenCovered", true) !== false
+    property bool desktopCovered: false
+
+    // Role numbers in TaskManager::AbstractTasksModel (Qt::UserRole + N).
+    readonly property int roleIsMaximized: 277
+    readonly property int roleIsFullScreen: 283
+
+    function updateCovered() {
+        if (!root.pauseWhenCovered) {
+            root.desktopCovered = false
+            return
+        }
+        for (var i = 0; i < tasksModel.count; ++i) {
+            const idx = tasksModel.index(i, 0)
+            if (tasksModel.data(idx, root.roleIsFullScreen) === true
+                || tasksModel.data(idx, root.roleIsMaximized) === true) {
+                root.desktopCovered = true
+                return
+            }
+        }
+        root.desktopCovered = false
+    }
+
+    // Windows on this screen only (virtual desktop and minimized windows filtered out).
+    // On Wayland a maximized/fullscreen window on the current desktop is the closest
+    // practical approximation of "the wallpaper is fully hidden".
+    TaskManager.TasksModel {
+        id: tasksModel
+        filterByScreen: true
+        filterByVirtualDesktop: true
+        filterNotMinimized: true
+        screenGeometry: waveEngine.screenGeometry
+        onCountChanged: root.updateCovered()
+        onDataChanged: root.updateCovered()
+        onScreenGeometryChanged: root.updateCovered()
     }
 
     readonly property int colorTheme: Number(cfg("ColorTheme", 0))
@@ -205,9 +247,11 @@ WallpaperItem {
         // "Wave height" slider: 0.3 (low on screen) .. 0.8 (high); centre of the wave band.
         waveCenterY: 1.0 - root.waveHeightRatio / 2.0
         rcoPath: root.effectiveRcoPath
-        tessLevel: root.configuration ? (root.configuration.TessLevel || 3) : 3
-        maxFps: root.configuration ? (root.configuration.MaxFps || 30) : 30
-        adaptiveQuality: root.configuration ? (root.configuration.AdaptiveQuality !== false) : true
+        tessLevel: root.lowPower ? 1 : (root.configuration ? (root.configuration.TessLevel || 3) : 3)
+        maxFps: root.lowPower ? 10 : (root.configuration ? (root.configuration.MaxFps || 30) : 30)
+        adaptiveQuality: !root.lowPower
+            && (root.configuration ? (root.configuration.AdaptiveQuality !== false) : true)
+        paused: root.powerMode === 2 || (root.pauseWhenCovered && root.desktopCovered)
         pauseOnBattery: root.configuration ? (root.configuration.PauseOnBattery !== false) : false
         batterySaver: root.configuration ? (root.configuration.BatterySaver === true) : false
         waveOpacity: waveOpacityValue
@@ -223,19 +267,28 @@ WallpaperItem {
         waveTint: root.customWaveColor ? root.waveColorCustom : "#ffffff"
         svecWaveColor: root.svecColor
         svecWaveCustom: root.customWaveColor
+        svecWaveHeight: {
+            var v = Number(root.cfg("SvecWaveHeight", 1.0))
+            return isNaN(v) || v <= 0 ? 1.0 : Math.min(2.5, v)
+        }
         backgroundMode: root.engineBackgroundMode
         backgroundTop: root.engineBgTop
         backgroundBottom: root.engineBgBottom
         backgroundAngle: Number(root.cfg("GradientAngle", 90))
         brightness: root.dayBrightness
 
-        // Quality / post-processing. Battery saver falls back to the cheap path.
-        renderScale: batterySaver ? 1.0 : Number(root.cfg("RenderScale", 1.0))
-        msaaSamples: batterySaver ? 1 : Number(root.cfg("MsaaSamples", 4))
-        bloom: batterySaver ? 0.0 : Number(root.cfg("Bloom", 0.3))
-        bicubicTexture: root.cfg("BicubicTexture", true) !== false
+        // Quality / post-processing. Battery saver and the low-power mode both fall
+        // back to the cheap path (1x scale, no MSAA, no bloom, coarse mesh).
+        // The item's own texture is halved in low power: the whole frame graph
+        // (wave scene, composite) runs at half resolution, the scene graph upscales.
+        fixedColorBufferWidth: root.lowPower ? Math.round(width * Screen.devicePixelRatio * 0.5) : 0
+        fixedColorBufferHeight: root.lowPower ? Math.round(height * Screen.devicePixelRatio * 0.5) : 0
+        renderScale: root.lowPower ? 0.5 : (batterySaver ? 1.0 : Number(root.cfg("RenderScale", 1.0)))
+        msaaSamples: (batterySaver || root.lowPower) ? 1 : Number(root.cfg("MsaaSamples", 4))
+        bloom: (batterySaver || root.lowPower) ? 0.0 : Number(root.cfg("Bloom", 0.3))
+        bicubicTexture: !root.lowPower && root.cfg("BicubicTexture", true) !== false
         dither: root.cfg("Dither", true) !== false
-        vignette: Number(root.cfg("Vignette", 0.0))
+        vignette: root.lowPower ? 0.0 : Number(root.cfg("Vignette", 0.0))
 
         visible: height > 8 && (root.effectiveRcoPath.length > 2 || waveStyle > 0 || backgroundMode > 0)
 

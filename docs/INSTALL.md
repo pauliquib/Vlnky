@@ -179,7 +179,7 @@ comes from the usual *Background* options — e.g. a solid custom colour or a gr
 | **Import…** (next to the wave list) | Uses any `.rco` file outside the collection. |
 | **Background** | When *XMB colour* is off: solid, gradient (start, end, angle), image, or an image from the wave folder (`screen3.bmp`, `preview.png`, `screenshot.png`). Colours are picked with a colour button (opens a colour picker); *Colour preset* offers ready-made combinations and the arrows swap gradient start and end. |
 | **Opacity** | Strength of the wave (0.3–1.0). |
-| **Height** | Vertical position of the wave (also applies to the PS2 style). |
+| **Height** | PSP/PS2 styles: vertical position of the wave on screen. Svec Studio style: height of the wave band, 30–250 % of the landing-page default. |
 | **Speed** | Animation speed, 10–400 % (100 % = original PSP speed). Every slider has a button that resets it to the default. |
 
 ### Render quality

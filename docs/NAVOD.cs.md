@@ -178,7 +178,7 @@ např. vlastní jednobarevná barva nebo přechod.
 | **Import…** (vedle výběru vlny) | Použije libovolný soubor `.rco` mimo sbírku. |
 | **Background** | Když je *XMB colour* vypnutá: jednobarevné, přechod (začátek, konec, úhel), obrázek, nebo obrázek ze složky vlny (`screen3.bmp`, `preview.png`, `screenshot.png`). Barvy se vybírají tlačítkem s barvou (otevře výběr barvy); *Colour preset* nabízí hotové barevné kombinace a šipky prohodí začátek a konec přechodu. |
 | **Opacity** | Síla vlny (0,3–1,0). |
-| **Height** | Svislá poloha vlny na obrazovce (platí i pro styl PS2). |
+| **Height** | Styly PSP/PS2: svislá poloha vlny na obrazovce. Styl Svec Studio: výška pásma vln, 30–250 % výchozí výšky z landing page. |
 | **Speed** | Rychlost animace vlny, 10–400 % (100 % = originál z PSP). Tlačítko vrátí výchozí rychlost. U každého posuvníku je tlačítko pro návrat na výchozí hodnotu. |
 
 ### Render quality

@@ -18,7 +18,8 @@ layout(std140, binding = 0) uniform buf {
     vec4 scene;    // xy = 1 / output size, z = scene present, w = supersampling factor
 
     // Svec Studio wave (the "hero waves" from the Sencurio landing page as used by
-    // svec-studio ui/desktop/wallpaper.js): 0 = wave rgb + enabled, 1 = x custom colours flag
+    // svec-studio ui/desktop/wallpaper.js): 0 = wave rgb + enabled,
+    // 1 = x custom colours flag, y band height scale (1 = landing-page default)
     vec4 svec[2];
 } u;
 
@@ -168,8 +169,9 @@ void svecWave(vec2 p, inout vec3 col, inout float a)
         svecOver(mix(wave, bgc, 0.72), g2 * 0.8 * op, col, a);
     }
 
-    // Wave band: clamp(140px, 22vmin+24px, 280px) anchored to the bottom.
-    float bandPx = clamp(0.22 * min(W, H) + 24.0, 140.0, 280.0);
+    // Wave band: clamp(140px, 22vmin+24px, 280px) anchored to the bottom, scaled by
+    // the user height factor (the CSS clamp bounds the default, not the user pick).
+    float bandPx = clamp(0.22 * min(W, H) + 24.0, 140.0, 280.0) * clamp(u.svec[1].y, 0.05, 4.0);
     float v = (1.0 - p.y) * H / bandPx; // 0 at the bottom edge, 1 at the band top
     if (v >= 1.0)
         return;

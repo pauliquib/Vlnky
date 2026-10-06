@@ -78,6 +78,22 @@
     <entry name="BatterySaver" type="Bool">
       <default>false</default>
     </entry>
+    <entry name="PowerMode" type="Int">
+      <label>0 = normal, 1 = low power (10 FPS, minimal quality), 2 = static frame (0 FPS)</label>
+      <default>0</default>
+      <min>0</min>
+      <max>2</max>
+    </entry>
+    <entry name="PauseWhenCovered" type="Bool">
+      <label>Pause rendering while a maximized/fullscreen window covers this screen</label>
+      <default>true</default>
+    </entry>
+    <entry name="GpuPreference" type="Int">
+      <label>0 = automatic, 1 = integrated GPU, 2 = dedicated GPU (whole plasmashell, needs restart)</label>
+      <default>0</default>
+      <min>0</min>
+      <max>2</max>
+    </entry>
     <entry name="BackgroundMode" type="Int">
       <default>1</default>
     </entry>
@@ -103,6 +119,12 @@
       <default>0.58</default>
       <min>0.3</min>
       <max>0.8</max>
+    </entry>
+    <entry name="SvecWaveHeight" type="Double">
+      <label>Svec Studio wave band height as a multiple of the default (1.0)</label>
+      <default>1.0</default>
+      <min>0.3</min>
+      <max>2.5</max>
     </entry>
     <entry name="WaveSpeed" type="Double">
       <label>Wave animation speed multiplier (1.0 = original)</label>

@@ -38,6 +38,9 @@ Kirigami.FormLayout {
     property int cfg_MaxFps: 30
     property bool cfg_PauseOnBattery: true
     property bool cfg_BatterySaver: false
+    property int cfg_PowerMode: 0
+    property bool cfg_PauseWhenCovered: true
+    property int cfg_GpuPreference: 0
     property int cfg_BackgroundMode: 1
     property color cfg_BackgroundColor: "#080c1c"
     property color cfg_GradientStart: "#080c1c"
@@ -46,6 +49,7 @@ Kirigami.FormLayout {
     property url cfg_BackgroundImage
     property real cfg_WaveOpacity: 0.92
     property real cfg_WaveHeightRatio: 0.58
+    property real cfg_SvecWaveHeight: 1.0
     property real cfg_WaveSpeed: 1.0
     property bool cfg_AdaptiveQuality: true
     property bool cfg_DebugOverlay: false
@@ -394,6 +398,7 @@ Kirigami.FormLayout {
             waveTint: cfg_WaveColorMode === 1 ? cfg_WaveColor : "white"
             svecWaveColor: root.waveColorEffective
             svecWaveCustom: cfg_WaveColorMode === 1
+            svecWaveHeight: cfg_SvecWaveHeight
             renderScale: cfg_RenderScale
             msaaSamples: cfg_MsaaSamples
             bloom: cfg_Bloom
@@ -469,6 +474,18 @@ Kirigami.FormLayout {
         value: cfg_WaveHeightRatio > 0.2 ? cfg_WaveHeightRatio : 0.58
         defaultValue: 0.58
         onEdited: v => cfg_WaveHeightRatio = v
+    }
+
+    ValueSlider {
+        Kirigami.FormData.label: i18nd("plasma_wallpaper_org.psvec.vlnky", "Height:")
+        // The Svec Studio wave is anchored to the bottom edge; this scales its band height.
+        visible: cfg_WaveStyle === 2
+        from: 0.3
+        to: 2.5
+        stepSize: 0.05
+        value: cfg_SvecWaveHeight > 0.05 ? cfg_SvecWaveHeight : 1.0
+        defaultValue: 1.0
+        onEdited: v => cfg_SvecWaveHeight = v
     }
 
     ValueSlider {
@@ -797,6 +814,89 @@ Kirigami.FormLayout {
         text: i18nd("plasma_wallpaper_org.psvec.vlnky", "Battery saver (15 FPS, lower quality)")
         checked: cfg_BatterySaver
         onToggled: cfg_BatterySaver = checked
+    }
+
+    ComboBox {
+        Kirigami.FormData.label: i18nd("plasma_wallpaper_org.psvec.vlnky", "Power mode:")
+        Layout.fillWidth: true
+        Layout.preferredWidth: root.fieldWidth
+        model: [
+            i18nd("plasma_wallpaper_org.psvec.vlnky", "Normal"),
+            i18nd("plasma_wallpaper_org.psvec.vlnky", "Low power (10 FPS, minimal quality)"),
+            i18nd("plasma_wallpaper_org.psvec.vlnky", "Static frame (0 FPS)")
+        ]
+        currentIndex: cfg_PowerMode
+        onActivated: cfg_PowerMode = currentIndex
+    }
+
+    CheckBox {
+        text: i18nd("plasma_wallpaper_org.psvec.vlnky",
+                    "Pause when a maximized or fullscreen window covers this screen")
+        checked: cfg_PauseWhenCovered
+        onToggled: cfg_PauseWhenCovered = checked
+    }
+
+    ComboBox {
+        Kirigami.FormData.label: i18nd("plasma_wallpaper_org.psvec.vlnky", "GPU:")
+        visible: root.showAdvanced
+        Layout.fillWidth: true
+        Layout.preferredWidth: root.fieldWidth
+        model: [
+            i18nd("plasma_wallpaper_org.psvec.vlnky", "Automatic"),
+            i18nd("plasma_wallpaper_org.psvec.vlnky", "Integrated"),
+            i18nd("plasma_wallpaper_org.psvec.vlnky", "Dedicated")
+        ]
+        currentIndex: cfg_GpuPreference
+        onActivated: cfg_GpuPreference = currentIndex
+    }
+
+    ColumnLayout {
+        visible: root.showAdvanced && cfg_GpuPreference !== 0
+        Layout.fillWidth: true
+        Layout.preferredWidth: root.fieldWidth
+        spacing: Kirigami.Units.smallSpacing
+
+        Label {
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.7
+            text: i18nd("plasma_wallpaper_org.psvec.vlnky",
+                        "The wave is rendered inside Plasma's scene graph, so the GPU choice applies to the whole shell and needs a Plasma restart.")
+        }
+        Label {
+            Layout.fillWidth: true
+            wrapMode: Text.WrapAnywhere
+            font: Kirigami.Theme.smallFont
+            opacity: 0.7
+            text: WaveScanner.detectedGpus().join("\n")
+        }
+        RowLayout {
+            spacing: Kirigami.Units.smallSpacing
+            Button {
+                icon.name: "dialog-ok-apply"
+                text: i18nd("plasma_wallpaper_org.psvec.vlnky", "Apply GPU setting")
+                onClicked: {
+                    const r = WaveScanner.applyGpuPreference(cfg_GpuPreference)
+                    gpuStatus.text = r.length > 0
+                        ? i18nd("plasma_wallpaper_org.psvec.vlnky", "Saved: %1. Restart Plasma to take effect.", r)
+                        : i18nd("plasma_wallpaper_org.psvec.vlnky", "Could not write the GPU override.")
+                    gpuStatus.visible = true
+                }
+            }
+            Button {
+                icon.name: "system-reboot"
+                text: i18nd("plasma_wallpaper_org.psvec.vlnky", "Restart Plasma")
+                onClicked: WaveScanner.restartPlasmashell()
+            }
+        }
+        Kirigami.InlineMessage {
+            id: gpuStatus
+            Layout.fillWidth: true
+            type: Kirigami.MessageType.Information
+            showCloseButton: true
+            visible: false
+        }
     }
 
     // ───────────────────────── Advanced ─────────────────────────

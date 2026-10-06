@@ -14,6 +14,7 @@
 #include <QMatrix4x4>
 #include <QQuickItemGrabResult>
 #include <QQuickWindow>
+#include <QScreen>
 #include <QtConcurrent>
 #include <rhi/qrhi.h>
 #include <rhi/qshader.h>
@@ -294,7 +295,9 @@ void XmbWaveRenderer::releaseOffscreen()
 bool XmbWaveRenderer::ensureOffscreen(const QSize &outSize)
 {
     const int maxTex = rhi()->resourceLimit(QRhi::TextureSizeMax);
-    float scale = qBound(1.f, m_data.renderScale, 2.f);
+    // Below 1 the wave layer renders into a smaller scene texture and the composite
+    // pass upscales it; used by the low-power mode.
+    float scale = qBound(0.25f, m_data.renderScale, 2.f);
     const int longest = qMax(outSize.width(), outSize.height());
     if (longest * scale > maxTex)
         scale = qMax(1.f, float(maxTex) / float(longest));
@@ -706,6 +709,15 @@ XmbWaveRhiItem::XmbWaveRhiItem(QQuickItem *parent)
         }
     });
     m_batteryTimer.start();
+
+    // The wave collection can live on a drive that mounts after plasmashell
+    // starts, so a failed load must not stick forever: keep retrying until the
+    // RCO appears (or a good file replaces a broken one).
+    m_retryTimer.setInterval(2000);
+    connect(&m_retryTimer, &QTimer::timeout, this, [this]() {
+        if (!m_loading)
+            reload();
+    });
 }
 
 XmbWaveRhiItem::~XmbWaveRhiItem()
@@ -716,6 +728,30 @@ XmbWaveRhiItem::~XmbWaveRhiItem()
 QQuickRhiItemRenderer *XmbWaveRhiItem::createRenderer()
 {
     return new XmbWaveRenderer();
+}
+
+void XmbWaveRhiItem::itemChange(ItemChange change, const ItemChangeData &data)
+{
+    QQuickRhiItem::itemChange(change, data);
+    if (change == ItemSceneChange) {
+        if (QQuickWindow *w = window())
+            connect(w, &QQuickWindow::screenChanged, this,
+                    &XmbWaveRhiItem::updateScreenGeometry, Qt::UniqueConnection);
+        updateScreenGeometry();
+    }
+}
+
+void XmbWaveRhiItem::updateScreenGeometry()
+{
+    QScreen *s = window() ? window()->screen() : nullptr;
+    if (s)
+        connect(s, &QScreen::geometryChanged, this,
+                &XmbWaveRhiItem::updateScreenGeometry, Qt::UniqueConnection);
+    const QRect g = s ? s->geometry() : QRect();
+    if (g == m_screenGeometry)
+        return;
+    m_screenGeometry = g;
+    emit screenGeometryChanged();
 }
 
 void XmbWaveRhiItem::syncToRenderer(XmbWaveRenderData &out) const
@@ -766,6 +802,7 @@ void XmbWaveRhiItem::syncToRenderer(XmbWaveRenderData &out) const
         rgb(m_svecWaveColor, s + 0);
         s[3] = out.svecWave ? 1.f : 0.f;
         s[4] = m_svecWaveCustom ? 1.f : 0.f;
+        s[5] = float(m_svecWaveHeight);
     }
     out.time = float(std::fmod(m_time, 36000.0));
 }
@@ -788,6 +825,16 @@ void XmbWaveRhiItem::updateTimer()
         }
     } else {
         m_timer.stop();
+    }
+}
+
+void XmbWaveRhiItem::updateRetryTimer()
+{
+    if (!m_loaded && !m_rcoPath.isEmpty()) {
+        if (!m_retryTimer.isActive())
+            m_retryTimer.start();
+    } else {
+        m_retryTimer.stop();
     }
 }
 
@@ -924,6 +971,7 @@ bool XmbWaveRhiItem::reload()
         setLoadStatus(QStringLiteral("loading"));
         emit loadedChanged();
         updateTimer();
+        updateRetryTimer();
         update();
         return false;
     }
@@ -941,6 +989,7 @@ bool XmbWaveRhiItem::reload()
         setLoadStatus(QStringLiteral("error"));
         emit loadedChanged();
         updateTimer();
+        updateRetryTimer();
         update();
         return false;
     }
@@ -981,6 +1030,7 @@ void XmbWaveRhiItem::startAsyncLoad()
             emit loadError(m_errorString);
             emit loadedChanged();
             updateTimer();
+            updateRetryTimer();
             update();
             return;
         }
@@ -1012,6 +1062,7 @@ void XmbWaveRhiItem::startAsyncLoad()
         updateDiagnostics();
         emit loadedChanged();
         updateTimer();
+        updateRetryTimer();
         update();
     });
 
@@ -1160,7 +1211,7 @@ void XmbWaveRhiItem::setWireframeMode(bool v)
 
 void XmbWaveRhiItem::setRenderScale(qreal s)
 {
-    s = qBound(1.0, s, 2.0);
+    s = qBound(0.25, s, 2.0);
     if (qFuzzyCompare(s, m_renderScale))
         return;
     m_renderScale = s;
@@ -1306,6 +1357,15 @@ void XmbWaveRhiItem::setSvecWaveCustom(bool v)
     if (v == m_svecWaveCustom)
         return;
     m_svecWaveCustom = v;
+    emit waveStyleChanged();
+    update();
+}
+
+void XmbWaveRhiItem::setSvecWaveHeight(qreal v)
+{
+    if (qFuzzyCompare(v, m_svecWaveHeight))
+        return;
+    m_svecWaveHeight = v;
     emit waveStyleChanged();
     update();
 }

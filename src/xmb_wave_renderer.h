@@ -8,6 +8,7 @@
 #include <QColor>
 #include <QElapsedTimer>
 #include <QQuickRhiItem>
+#include <QRect>
 #include <QTimer>
 
 #include <atomic>
@@ -107,6 +108,10 @@ class XmbWaveRhiItem : public QQuickRhiItem
     Q_PROPERTY(QColor waveTint READ waveTint WRITE setWaveTint NOTIFY waveStyleChanged)
     Q_PROPERTY(QColor svecWaveColor READ svecWaveColor WRITE setSvecWaveColor NOTIFY waveStyleChanged)
     Q_PROPERTY(bool svecWaveCustom READ svecWaveCustom WRITE setSvecWaveCustom NOTIFY waveStyleChanged)
+    Q_PROPERTY(qreal svecWaveHeight READ svecWaveHeight WRITE setSvecWaveHeight NOTIFY waveStyleChanged)
+    /// Geometry of the screen this item's window sits on; used by QML to filter
+    /// TaskManager::TasksModel per screen for the pause-when-covered feature.
+    Q_PROPERTY(QRect screenGeometry READ screenGeometry NOTIFY screenGeometryChanged)
 
 public:
     explicit XmbWaveRhiItem(QQuickItem *parent = nullptr);
@@ -193,6 +198,11 @@ public:
     /// true = user-picked wave colour (custom palette), false = theme-derived.
     bool svecWaveCustom() const { return m_svecWaveCustom; }
     void setSvecWaveCustom(bool v);
+    /// Height of the Svec Studio wave band as a multiple of the landing-page default (1.0).
+    qreal svecWaveHeight() const { return m_svecWaveHeight; }
+    void setSvecWaveHeight(qreal v);
+
+    QRect screenGeometry() const { return m_screenGeometry; }
 
     Q_INVOKABLE static QString defaultScreenshotDir();
     Q_INVOKABLE void captureScreenshot(const QString &label = QString());
@@ -228,18 +238,22 @@ signals:
     void renderQualityChanged();
     void backgroundChanged();
     void waveStyleChanged();
+    void screenGeometryChanged();
     void screenshotCaptured(const QString &path);
     void allScreenshotsCaptured(const QString &directory);
 
 protected:
     QQuickRhiItemRenderer *createRenderer() override;
+    void itemChange(ItemChange change, const ItemChangeData &data) override;
 
 private:
+    void updateScreenGeometry();
     void tick();
     void startAsyncLoad();
     void setLoadStatus(const QString &s);
     void setErrorString(const QString &e);
     void updateTimer();
+    void updateRetryTimer();
     void updateEffectiveTessLevel();
     void rebuildTopology();
     void evaluateMesh();
@@ -280,6 +294,8 @@ private:
     QColor m_waveTint = QColor(255, 255, 255);
     QColor m_svecWaveColor = QColor(0x26, 0xc6, 0xda);
     bool m_svecWaveCustom = false;
+    qreal m_svecWaveHeight = 1.0;
+    QRect m_screenGeometry;
     double m_time = 0.0;
 
     bool m_loaded = false;
@@ -295,6 +311,7 @@ private:
 
     QTimer m_timer;
     QTimer m_batteryTimer;
+    QTimer m_retryTimer;
     QElapsedTimer m_clock;
     qint64 m_lastTickNs = 0;
     std::vector<float> m_frameCostMs;
